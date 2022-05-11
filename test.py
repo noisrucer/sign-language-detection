@@ -1,22 +1,33 @@
 from dataset import CustomDataset
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
-from torch.utils.data import DataLoader
+from dataloader import CustomDataLoader
+from yolov2 import Yolov2
+from loss import Yolo_Loss
+import torch
 
-transform = A.Compose([
-    A.Resize(416, 416),
-    A.Normalize(mean=[0,0,0], std=[1,1,1]),
-    ToTensorV2()
-], bbox_params=A.BboxParams(format='yolo'))
+train_loader = CustomDataLoader(
+    data_dir='./data/train', label_dir='./data/labels', mode='train',
+    batch_size=8, shuffle=True, drop_last=False, num_workers=0
+)
 
-dataset = CustomDataset(transform=transform)
+val_loader = CustomDataLoader(
+    data_dir='./data/val', label_dir='./data/labels', mode='val',
+    batch_size=8, shuffle=True, drop_last=False, num_workers=0
+)
 
-dataloader = DataLoader(dataset=dataset, shuffle=True, batch_size=8)
+model = Yolov2(n_classes=5)
+loss_fn = Yolo_Loss()
 
-batch = next(iter(dataloader))
+batch = next(iter(train_loader))
+img, gt_boxes, gt_labels = batch
 
-print(batch[0].shape)
-print(batch[1].shape)
-print(batch[2].shape)
+out = model(img)
+out = torch.permute(out, (0, 2, 3, 1)) # (B, 50, 13, 13)
+print("out shape: {}".format(out.shape))
+
+loss = loss_fn(out, gt_boxes, gt_labels)
+print("loss: {}".format(loss))
+
 
 

@@ -5,7 +5,7 @@ import numpy as np
 from utils import get_ious
 
 class Yolo_Loss(nn.Module):
-    def __init__(self, n_classes=20):
+    def __init__(self, n_classes=5):
         super().__init__()
         self.n_classes = n_classes
         self.anchors = [(1.3221, 1.73145), (3.19275, 4.00944), (5.05587, 8.09892), (9.47112, 4.84053),
@@ -15,7 +15,7 @@ class Yolo_Loss(nn.Module):
     def forward(self, preds, gt_boxes, gt_labels):
         '''
         Parameters:
-            preds: (B, 13, 13, 125)
+            preds: (B, 13, 13, 50)
             gt_boxes: (B, xxx, 4)
             gt_labels: (B, xxx)
         '''
