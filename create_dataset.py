@@ -2,7 +2,7 @@ import cv2
 import time
 import os.path as osp
 
-data_dir = './data'
+data_dir = './data/images'
 labels = {
     0: 'a',
     1: 'b',
@@ -26,8 +26,8 @@ print("Frame height: {}".format(frame_size[1]))
 
 start = time.time()
 
-num_samples_per_label = 30
-capture_cnt = 0
+num_samples_per_label = 41
+capture_cnt = 31
 cur_label = 4
 
 while True:
