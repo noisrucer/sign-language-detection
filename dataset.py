@@ -6,9 +6,10 @@ import numpy as np
 import os
 import os.path as osp
 
+cv2.setNumThreads(0)
 
 class CustomDataset(Dataset):
-    def __init__(self, data_dir='./data/images', label_dir='./data/labels', transform=None):
+    def __init__(self, data_dir='./data/train', label_dir='./data/labels', transform=None):
         super().__init__()
         self.data_dir = data_dir
         self.label_dir = label_dir

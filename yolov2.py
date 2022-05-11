@@ -3,7 +3,7 @@ import torch.nn as nn
 from darknet19 import DarkNet19
 
 class Yolov2(nn.Module):
-    def __init__(self, in_channel=3, n_classes=20):
+    def __init__(self, in_channel=3, n_classes=5):
         super().__init__()
         self.in_channel = in_channel
         self.n_classes = n_classes
