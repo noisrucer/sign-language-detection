@@ -1,0 +1,18 @@
+#############
+# [commit type] title
+# ex) [Feat] Upload YOLOv2
+
+#############
+# Main body
+
+#############
+# Issue #
+# ex) issue #1
+
+#############
+# Feat: New feature
+# Exp: Experiment
+# Fix: Bug fix
+# Docs: Document fix
+# Refact: Code refactoring
+#############
