@@ -101,11 +101,11 @@ class Yolo_Loss(nn.Module):
             label = gt_labels[batch_idx] # (n_objs, )
 
             # GT Boxes
-            corner_gt_box = gt_boxes[batch_idx] # (n_objs, 4)
-            corner_gt_box_13 = corner_gt_box * float(G)
+            center_gt_box = gt_boxes[batch_idx] # (n_objs, 4)
+            center_gt_box_13 = center_gt_box * float(G)
 
-            center_gt_box = self.corner2center(corner_gt_box)
-            center_gt_box_13 = center_gt_box * float(G) # (n_objs, 4) 0~13, x,y,w,h
+            corner_gt_box = self.center2corner(center_gt_box)
+            corner_gt_box_13 = corner_gt_box * float(G) # (n_objs, 4) 0~13, x,y,w,h
 
             # IoUs b/w anchors and GT boxes
             iou_anchors_gt = get_ious(corner_anchors, corner_gt_box_13) # (845, n_obj)
