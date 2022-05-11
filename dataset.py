@@ -47,13 +47,19 @@ class CustomDataset(Dataset):
                 label, x, y, w, h = box_info
                 bboxes.append([x, y, w, h, label])
 
+        # Transform
         if self.transform:
             transformed = self.transform(image=img, bboxes=bboxes)
-            transformed_image = transformed['image']
-            transformed_bboxes = transformed['bboxes']
+            transformed_image = transformed['image'] # (3, 416, 416)
+            transformed_bboxes = transformed['bboxes'] # (n_objects, 5) x,y,w,h,label
 
-        return 0
+        gt_boxes = torch.empty(0, 4)
+        gt_labels = torch.empty(0, dtype=torch.uint8)
 
+        for bbox in transformed_bboxes:
+            x, y, w, h, label = bbox
+            gt_boxes = torch.vstack([gt_boxes, torch.tensor([x, y, w, h], dtype=torch.float32)])
+            gt_labels = torch.hstack([gt_labels, torch.tensor(label)])
 
-
+        return transformed_image, gt_boxes, gt_labels
 
