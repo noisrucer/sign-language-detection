@@ -59,7 +59,7 @@ class CustomDataset(Dataset):
         for bbox in transformed_bboxes:
             x, y, w, h, label = bbox
             gt_boxes = torch.vstack([gt_boxes, torch.tensor([x, y, w, h], dtype=torch.float32)])
-            gt_labels = torch.hstack([gt_labels, torch.tensor(label)])
+            gt_labels = torch.hstack([gt_labels, torch.tensor(label, dtype=torch.uint8)])
 
         return transformed_image, gt_boxes, gt_labels
 
