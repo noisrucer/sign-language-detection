@@ -17,16 +17,17 @@ val_loader = CustomDataLoader(
     batch_size=8, shuffle=True, drop_last=False, num_workers=0
 )
 
-model = Yolov2(n_classes=5)
-anchors = [(1.3221, 1.73145), (3.19275, 4.00944), (5.05587, 8.09892), (9.47112, 4.84053),
-            (11.2364, 10.0071)]
-
-mAP = mean_average_precision(
-    val_loader,
-    model,
-    anchors
-)
-print(mAP)
+print(len(train_loader))
+#  model = Yolov2(n_classes=5)
+#  anchors = [(1.3221, 1.73145), (3.19275, 4.00944), (5.05587, 8.09892), (9.47112, 4.84053),
+#              (11.2364, 10.0071)]
+#
+#  mAP = mean_average_precision(
+#      val_loader,
+#      model,
+#      anchors
+#  )
+#  print(mAP)
 
 
 
