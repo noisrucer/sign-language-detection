@@ -12,12 +12,18 @@ def mean_average_precision(loader, model, anchors_wh, map_iou_thresh=0.5, iou_th
         gt_boxes (tensor): (B, n_obj, 4)
         gt_labels (tensor): (B, n_obj)
     '''
+    model.eval()
 
     # Convert predicted boxes and gt boxes into a single list (for each)
     # (train_idx, cls, conf, x, y, w, h)
     all_pred_boxes, all_gt_boxes = convert_loader_model_to_single_list(loader, model, anchors_wh, iou_thresh=0.5)
 
     average_precisions = []
+    print('-'*50 + "Ground Truth" + '-'*50)
+    for k, gb in enumerate(all_gt_boxes):
+        print("[GT {}] img: {} / class: {}".format(k, gb[0], gb[1]))
+
+    print("-"*100)
 
     for c in range(n_classes):
         # pred_boxes for current class c
@@ -75,7 +81,8 @@ def mean_average_precision(loader, model, anchors_wh, map_iou_thresh=0.5, iou_th
                     best_iou = iou
                     best_iou_gt_idx = gt_idx
 
-            if best_iou > map_iou_threshold:
+            if best_iou > map_iou_thresh:
+                print("img: {} / class: {} / best_iou: {} / conf: {}".format(detection[0], c, best_iou, detection[2]))
                 # If not visited, then the current predicted detection is "correct"!
                 if gt_visited[detection[0]][best_iou_gt_idx] == 0:
                     gt_visited[detection[0]][best_iou_gt_idx] = 1

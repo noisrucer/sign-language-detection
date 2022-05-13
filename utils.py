@@ -25,7 +25,7 @@ def get_ious(boxes1, boxes2):
     boxes2_area = (boxes2[:, 2] - boxes2[:, 0]) * (boxes2[:, 3] - boxes2[:, 1]) # (n2, )
 
     union = boxes1_area.unsqueeze(1) + boxes2_area.unsqueeze(0) - intersection + 1e-6
-
+    
     return intersection / union # (n1, n2)
 
 
@@ -55,7 +55,7 @@ def intersection_over_union(bboxes1, bboxes2):
     bboxes1 = center2corner(bboxes1) # (B, xyxy)
     bboxes2 = center2corner(bboxes2) # (B, xyxy)
     top_left_xy = torch.max(bboxes1[..., :2], bboxes2[..., :2]) # (B, 2)
-    bottom_right_xy = torch.min(bboxes1[..., 2:], bboxes2[..., :2]) # (B, 2)
+    bottom_right_xy = torch.min(bboxes1[..., 2:], bboxes2[..., 2:]) # (B, 2)
 
     inter_wh = torch.clamp(bottom_right_xy - top_left_xy, min=0)
     intersection = inter_wh[..., 0] * inter_wh[..., 1]
@@ -64,7 +64,7 @@ def intersection_over_union(bboxes1, bboxes2):
     bboxes2_area = torch.abs((bboxes2[..., 2] - bboxes2[..., 0]) * (bboxes2[..., 3] - bboxes2[..., 1]))
 
     union = bboxes1_area + bboxes2_area - intersection + 1e-6
-
+    iou = intersection / union
     return intersection / union
 
 
@@ -86,7 +86,6 @@ def non_max_suppression(bboxes, iou_thresh=0.5, conf_thresh=0.6):
 
     # [2] Sort bboxes for confidence in descending order
     bboxes.sort(key=lambda bbox: bbox[2], reverse=True)
-
     # [3] Perform NMS for EACH class
     while(bboxes):
         top_box = bboxes.pop(0)
@@ -103,7 +102,6 @@ def non_max_suppression(bboxes, iou_thresh=0.5, conf_thresh=0.6):
 
 
 def convert_loader_model_to_single_list(loader, model, anchors_wh, iou_thresh=0.5, n_classes=5):
-
     model.eval()
     train_idx = 0
 
@@ -142,6 +140,7 @@ def gt_boxes_to_list_boxes(gt_boxes, gt_labels, train_idx, G=13):
     Returns:
     batch_all_gt_boxes: List[(train_idx, cls, conf, x, y, w, h)] scaled [0, 13]
     '''
+    gt_boxes, gt_labels = gt_boxes.to('cpu'), gt_labels.to('cpu')
     batch_all_gt_boxes = []
 
     B = gt_boxes.shape[0]
@@ -171,17 +170,18 @@ def pred_boxes_to_list_boxes(pred_boxes, anchors_wh, train_idx, n_classes=5):
         list_boxes: (B, # pred boxes, 7) - train_idx, cls, conf, x, y, w, h
             - x, y, w, h scaled 0~13
     '''
+    pred_boxes = pred_boxes.to('cpu')
     B = pred_boxes.shape[0]
     G = pred_boxes.shape[1]
 
     # Convert parameterized prediction to original bbox format: x,y,w,h are scaled [0,13]
     pred_bxby, pred_bwbh, pred_conf, pred_cls = deparametrize_boxes(pred_boxes, anchors_wh)
-    print("pred_bxby shape: {}".format(pred_bxby.shape))
     pred_bxby = pred_bxby.reshape(B, G*G*5, 2) # (B, # pred boxes, 2)
     pred_bwbh = pred_bxby.reshape(B, G*G*5, 2) # (B, # pred boxes, 2)
     pred_conf = pred_conf.reshape(B, G*G*5).unsqueeze(-1) # (B, # pred boxes, 1)
     pred_cls = pred_cls.reshape(B, G*G*5).unsqueeze(-1) # (B, # pred boxes, 1)
     pred_train_idx = torch.from_numpy(np.arange(train_idx, train_idx+B)).reshape(B,1).expand(B, G*G*5).unsqueeze(-1) # (B, # pred boxes, 1)
+    print(train_idx, train_idx+B)
 
     pred_all = torch.cat([
         pred_train_idx, pred_cls, pred_conf, pred_bxby, pred_bwbh
@@ -193,7 +193,7 @@ def pred_boxes_to_list_boxes(pred_boxes, anchors_wh, train_idx, n_classes=5):
     return all_pred_boxes
 
 
-def combine_to_single_list(pred_all, iou_thresh=0.5, conf_thresh=0.6):
+def combine_to_single_list(pred_all, iou_thresh=0.5, conf_thresh=0.5):
     '''
     Perform NMS for bboxes for each batch(image) and combine everything into a single list
 
@@ -206,6 +206,7 @@ def combine_to_single_list(pred_all, iou_thresh=0.5, conf_thresh=0.6):
     all_pred_boxes = []
 
     B = pred_all.shape[0]
+    ex = [x for x in pred_all[0] if x[2] > 0.1]
 
     for b in range(B):
         nms_boxes = non_max_suppression(
@@ -236,6 +237,7 @@ def deparametrize_boxes(pred_boxes, anchors_wh, n_classes=5):
     '''
     B = pred_boxes.shape[0]
     G = pred_boxes.shape[1]
+    pred_boxes = pred_boxes.type(torch.float32)
 
     pred_boxes = pred_boxes.reshape(-1, G, G, 5, 5 + n_classes) # (B, G, G, 5, 10)
 
@@ -248,7 +250,6 @@ def deparametrize_boxes(pred_boxes, anchors_wh, n_classes=5):
     pred_wh = pred_boxes[..., 2:4] # (B, G, G, 5, 2)
     pred_conf = pred_boxes[..., 4] # (B, G, G, 5)
     pred_cls = torch.argmax(pred_boxes[..., 5:], dim=-1) # (B, G, G, 5)
-
     # Compute bx, by
     cx, cy = np.meshgrid(np.arange(G), np.arange(G))
     cxcy = np.concatenate([
@@ -257,8 +258,8 @@ def deparametrize_boxes(pred_boxes, anchors_wh, n_classes=5):
 
     cxcy = torch.from_numpy(cxcy)
     cxcy = cxcy.reshape(G, G, 1, 2).expand(G, G, 5, 2).type(torch.float32) # (G, G, 5, 2)
+    
     pred_bxby = pred_xy + cxcy # (B, G, G, 5, 2)
-
     # Compute bw, bh
     anchors_wh = torch.from_numpy(np.array(anchors_wh)) # (5, 2)
     anchors_wh = anchors_wh.reshape(1, 1, 5, 2).expand(G, G, 5, 2).type(torch.float32) # (G, G, 5, 2)
@@ -266,6 +267,12 @@ def deparametrize_boxes(pred_boxes, anchors_wh, n_classes=5):
 
     return pred_bxby, pred_bwbh, pred_conf, pred_cls
 
+def save_checkpoint(state, fname):
+    print("=> Saving Checkpoint...")
+    torch.save(state, fname)
 
 
-
+def load_checkpoint(checkpoint, model, optimizer, lr_scheduler):
+    print("=> Loading Checkpoint...")
+    model.load_state_dict(checkpoint['model_state_dict'])
+    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])

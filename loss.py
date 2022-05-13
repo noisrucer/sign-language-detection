@@ -1,15 +1,21 @@
+'''
+Reference: https://github.com/csm-kr/yolo_v2_vgg16_pytorch
+'''
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 from utils import get_ious
 
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
 class Yolo_Loss(nn.Module):
     def __init__(self, n_classes=5):
         super().__init__()
         self.n_classes = n_classes
-        self.anchors = [(1.3221, 1.73145), (3.19275, 4.00944), (5.05587, 8.09892), (9.47112, 4.84053),
-                        (11.2364, 10.0071)]
+        self.anchors = [(2.5221, 3.3145), (3.19275, 4.00944), (4.5587, 4.09892), (5.47112, 7.84053),
+                        (6.2364, 8.0071)]
 
 
     def forward(self, preds, gt_boxes, gt_labels):
@@ -92,8 +98,8 @@ class Yolo_Loss(nn.Module):
         gt_conf = torch.zeros(B, G, G, 5)
         gt_cls = torch.zeros(B, G, G, 5, self.n_classes)
 
-        center_anchors = self.build_anchors(self.anchors) # (G, G, 5, 4)
-        corner_anchors = self.center2corner(center_anchors).view(G * G * 5, 4) # (845, 4)
+        center_anchors = self.build_anchors(self.anchors).to(device) # (G, G, 5, 4)
+        corner_anchors = self.center2corner(center_anchors).view(G * G * 5, 4).to(device) # (845, 4)
 
         # Determin "responsible" mask
         for batch_idx in range(B):
@@ -128,7 +134,7 @@ class Yolo_Loss(nn.Module):
 
                 resp_mask[batch_idx, cy, cx, j] = 1 # responsible anchor idx
                 gt_xy[batch_idx, cy, cx, :] = x_y_[obj_idx]
-                w_h_ = bwbh[obj_idx] / torch.FloatTensor(self.anchors[j]) # b_w / p_w
+                w_h_ = bwbh[obj_idx] / torch.FloatTensor(self.anchors[j]).to(device) # b_w / p_w
                 gt_wh[batch_idx, cy, cx, j, :] = w_h_
                 gt_cls[batch_idx, cy, cx, j, int(label[obj_idx].item())] = 1
 
