@@ -32,7 +32,7 @@ The ultimate goal of this project is to **experience the whole object detection 
 
 # Project Walkthrough
 
-> 1. Read **YOLOv2** paper (link)[https://arxiv.org/abs/1612.08242] and implement it
+> 1. Read **YOLOv2** paper [link](https://arxiv.org/abs/1612.08242) and implement it
 
 This was the hardest part in the project. Implementing darknet19 and YOLOv2 were quite simple but the **loss function** was very complicated. I ended up referencing the loss function flow but implemented other things from scratch. It was a very helpful experience.
     
