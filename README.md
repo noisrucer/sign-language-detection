@@ -14,7 +14,7 @@
 
 # Project Description
 
-Sign language is the essential way for those who are deaf or hard of hearing. Sign language enables deaf people to communicate with each other without voices. However, many people have never learned sign language before, unable to understand any of the sign languages.
+Sign language is the essential way for those who are deaf or hard of hearing. Sign language enables deaf people to communicate with each other without voices. However, many people have never learned sign language before.
 
 The project focuses on **detecting sign language alphabets** (a, b, c, d, e) using `YOLOv2`.
 
