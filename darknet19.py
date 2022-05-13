@@ -3,9 +3,6 @@ import torch.nn as nn
 import torch.utils.model_zoo as model_zoo
 import numpy as np
 import os.path as osp
-import wget
-
-#  from holocron import GlobalAvgPool2d
 
 # (in_channel, List[(kernel_size, out_channel)], max_pooling)
 model_arch = [
