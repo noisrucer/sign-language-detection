@@ -35,6 +35,8 @@ The ultimate goal of this project is to **experience the whole object detection 
 > 1. Read **YOLOv2** paper [link](https://arxiv.org/abs/1612.08242) and implement it
 
 This was the hardest part in the project. Implementing darknet19 and YOLOv2 was quite simple but the **loss function** and **utils** was very complicated. I ended up referencing the loss function flow but implemented other things from scratch. It was a very helpful experience.
+
+I used darknet19 pretrained weights by converting the original weights file by using [darknet2pytorch](https://github.com/Tianxiaomo/pytorch-YOLOv4/blob/master/tool/darknet2pytorch.py). You can check it in `pretrained/`. I modified so that the parameter names and shapes are compatible with the model I implemented.
     
     
 > 2. Generate Custom Dataset
