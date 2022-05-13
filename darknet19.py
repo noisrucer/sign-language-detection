@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
+import torch.utils.model_zoo as model_zoo
 import numpy as np
+import os.path as osp
 
 # (in_channel, List[(kernel_size, out_channel)], max_pooling)
 model_arch = [
@@ -14,7 +16,7 @@ model_arch = [
 
 
 class DarkNet19(nn.Module):
-    def __init__(self, in_channel):
+    def __init__(self, in_channel=3):
         super().__init__()
         self.in_channel = in_channel
 
@@ -60,8 +62,8 @@ class DarkNet19(nn.Module):
             kernel_size, out_channel = block
             padding = 1 if kernel_size == 3 else 0
 
-            blocks.append(nn.Conv2d(in_channel, out_channel, kernel_size=kernel_size, stride=1, padding=padding))
-            blocks.append(nn.BatchNorm2d(out_channel))
+            blocks.append(nn.Conv2d(in_channel, out_channel, kernel_size=kernel_size, stride=1, padding=padding, bias=False))
+            blocks.append(nn.BatchNorm2d(out_channel, track_running_stats=False))
             blocks.append(nn.LeakyReLU(0.1, inplace=True))
             in_channel = out_channel
 
@@ -69,4 +71,27 @@ class DarkNet19(nn.Module):
             blocks.append(nn.MaxPool2d(kernel_size=2, stride=2))
 
         return nn.Sequential(*blocks)
+
+    def load_weight(self):
+        #  url = 'https://github.com/frgfm/Holocron/releases/download/v0.1.3/darknet19_224-b1ce16a5.pt'
+        #
+        #  weight_path = 'pretrained/darknet19-pretrained.pth'
+        #  if not osp.exists(weight_path):
+        #      print("Downloading weights..")
+        #      wget.download(url=url, out=weight_path)
+        #
+        #  checkpoint = torch.load(weight_path)
+        #  del checkpoint['classifier.weight']
+        #  del checkpoint['classifier.bias']
+
+        checkpoint = torch.load('pretrained/darknet19_2.pth')
+        dct = {}
+        for k, v in zip(self.state_dict().keys(), checkpoint.values()):
+            #  print("{}".format(k))
+            dct[k] = v
+
+        print("Loading pretrained weight for Darknet19...")
+        self.load_state_dict(dct)
+
+
 

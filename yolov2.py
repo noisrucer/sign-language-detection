@@ -9,6 +9,7 @@ class Yolov2(nn.Module):
         self.n_classes = n_classes
 
         self.darknet19 = DarkNet19(in_channel=in_channel)
+        self.darknet19.load_weight()
 
         self.conv1 = nn.Conv2d(1024, 1024, 3, 1, 1)
         self.conv2 = nn.Conv2d(1024, 1024, 3, 1, 1) # skip
