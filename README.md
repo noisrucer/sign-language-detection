@@ -71,7 +71,7 @@ However, the final performance was bad. The **mAP** for training dataset was onl
 
 1. Made some mistakes for the loss function or utils. If one line of codes is mistaken, the whole logic breaks apart. I spent much time on debugging but haven't found one myself yet.
 
-2. Insufficient data samples. I used total of `255 samles` only due to the limited time and also because I thought detecting only 5 labels would not be complicated (also there's one target per image). It might work for much easier tasks such as image classification, but I suspect that object detection task is much more complicated, requiring much more data samples. However, I first thought that the **training set** must be at least **overfitting** but the performance was bad in the training set, not the validation set. I'll keep debugging and trying other methods to make achieve a decent performance.
+2. Insufficient data samples. I used total of `255 ` samples only due to the limited time and also because I thought detecting only 5 labels would not be complicated (also there's one target per image). It might work for much easier tasks such as image classification, but I suspect that object detection task is much more complicated, requiring much more data samples. However, I first thought that the **training set** must be at least **overfitting** but the performance was bad in the training set, not only the validation set. I'll keep debugging and trying other methods to make achieve a decent performance.
 
 Even though the result was not so good, it was a definitely tremendously helpful project! I'll later have to compare my model with the sophisticated library for an ablation study. If it works, I'll find the error. If not, i'll gather more data samples :)
 
