@@ -1,5 +1,9 @@
 # 🔥 Sign Language Alphabet Detection
 
+| ![cutmix](./images/ASL.png) | 
+|:--:| 
+| *[Researchgate](https://www.researchgate.net/figure/American-Sign-Language-alphabet_fig1_340721626)* |
+
 # Contents
 
 1. **Project Description**
@@ -35,8 +39,6 @@ This was the hardest part in the project. Implementing darknet19 and YOLOv2 were
     
 > 2. Generate Custom Dataset
 
-![ASL]('./images/ASL.png')
-
 I constructed **51 samples** for each label (a-e) using `OpenCV` and webcam.
 
 `create_dataset.py` implements **automatic screenshot at every 4 seconds** using webcam.
@@ -56,6 +58,8 @@ Now we have the model, loss function, metrics, and datasets. It's time to train!
 > 5. Train & Inference
 
 The model was trained for 300-500 epochs and tested.
+
+![Inference Result](./images/image1.png)
 
 # Achievements
 
@@ -79,7 +83,7 @@ I personally believe the actual understanding only comes from implementing it.
 
 It was painful but super helpful!
 
-This was a small-size toy project but I'll keep working hard to move on to some cool projects soon enough!
+This was a small size toy project but I'll keep working hard to move on to some cool projects soon enough!
 
 
 
